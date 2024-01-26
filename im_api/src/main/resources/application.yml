@@ -49,17 +49,17 @@ logging:
 
 oss:
   upload_base_url: http://127.0.0.1:${server.port}${server.servlet.context-path}
-  bucket: iims
+  bucket: xxxxxxx
   # 上传文件访问的地址
-  endpoint: oss-cn-shanghai.aliyuncs.com
-  # 录音文件URL公网地址
-  endpoint_public: oss-cn-shanghai.aliyuncs.com
-  accessKeyId: LTAI4FdiVozjcJvj6pSkpsEc
-  accessKeySecret: XVkbjAOjnfyH60umZey3ZiaxZCPC0C
+  endpoint: xxxxxx
+  # 公网地址
+  endpoint_public: xxxxx
+  accessKeyId: xxxxx
+  accessKeySecret: xxxxx
 
 ws:
   port: 10036
   path: /im/chat
-  rocketMqNameAddr: 47.96.80.134:9876
+  rocketMqNameAddr: xxxxxxxx
   rocketMqSendMessageTopic: my_im_chat_topic
   rocketMqSendMessageGroup: my_im_chat
