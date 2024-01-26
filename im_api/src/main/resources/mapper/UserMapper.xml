@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.UserMapper">
+
+    <select id="selectUserByUserName" resultType="com.wen.im.common.model.entity.UserInfo">
+        select
+            id,
+            id as uid,
+            user_name as userName,
+            name,
+            password,
+            avatar,
+            sex,
+            power,
+            active_status as activeStatus,
+            last_opt_time as lastOptTime,
+            create_time as createTime,
+            update_time as updateTime
+        from user
+        where user_name = #{userName}
+    </select>
+    
+    <select id="selectUserByUid" resultType="com.wen.im.common.model.entity.UserInfo">
+        select
+            id,
+            id as uid,
+            user_name as userName,
+            name,
+            password,
+            avatar,
+            sex,
+            power,
+            active_status as activeStatus,
+            last_opt_time as lastOptTime,
+            create_time as createTime,
+            update_time as updateTime
+        from user
+        where id = #{uid}
+    </select>
+
+    <update id="updateName">
+        update user
+        set name = #{name}
+        where id = #{uid}
+    </update>
+    
+    <update id="updateAvatar">
+        update user
+        set avatar = #{avatar}
+        where id = #{uid}
+    </update>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into user(user_name, name, password, avatar, power, sex, active_status, last_opt_time, create_time, update_time)
+        values (#{userName}, #{name}, #{password}, #{avatar}, #{power}, #{sex}, #{activeStatus}, #{lastOptTime}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <update id="online">
+        update user
+        set active_status = 1, last_opt_time = now(), update_time = now()
+        where id = #{uid}
+    </update>
+
+    <update id="offline">
+        update user
+        set active_status = 2, last_opt_time = now(), update_time = now()
+        where id = #{uid}
+    </update>
+
+    <select id="onlineNumber" resultType="int">
+        select
+            count(u.id)
+        from user u
+        left join group_member gm on u.id = gm.uid
+        where gm.group_id = #{groupId} and u.active_status = 1
+    </select>
+    
+    <select id="onlineNumberAll" resultType="int">
+        select
+            count(u.id)
+        from user u
+        where u.active_status = 1
+    </select>
+
+</mapper>

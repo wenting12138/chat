@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.RoomMapper">
+
+    <select id="selectRoomByRoomId" resultType="com.wen.im.common.model.entity.Room">
+        select
+            id,
+            type,
+            hot_flag as hotFlag,
+            last_msg_id as lastMsgId,
+            ext_json as extJson,
+            active_time as activeTime,
+            create_time as createTime,
+            update_time as updateTime
+        from `room`
+        where
+            id = #{roomId}
+    </select>
+    <select id="selectHotRoom" resultType="com.wen.im.common.model.entity.Room">
+        select
+            id,
+            type,
+            hot_flag as hotFlag,
+            last_msg_id as lastMsgId,
+            ext_json as extJson,
+            active_time as activeTime,
+            create_time as createTime,
+            update_time as updateTime
+        from `room`
+        where
+            hot_flag = 1
+    </select>
+
+    <insert id="saveRoom" useGeneratedKeys="true" keyProperty="id">
+        insert into `room`(type, hot_flag, last_msg_id, ext_json, active_time, create_time, update_time)
+        values (
+                #{type}, #{hotFlag}, #{lastMsgId}, #{extJson}, #{activeTime}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <update id="updateRead">
+        update `room`
+        set active_time = now(), update_time = now()
+        where id = #{roomId}
+    </update>
+    
+    <update id="updateLastMsgId">
+        update `room`
+        set last_msg_id = #{msgId}, update_time = now(), active_time = (case when hot_flag = 1 then now() else active_time end)
+        where id = #{roomId}
+    </update>
+
+    <delete id="delRoom">
+        delete from `room`
+        where id = #{roomId}
+    </delete>
+    
+</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.ContactMapper">
+
+    <select id="selectContactByUid" resultType="com.wen.im.common.model.entity.Contact">
+        select
+            id,
+            uid,
+            room_id as roomId,
+            last_msg_id as lastMsgId,
+            active_time as activeTime,
+            read_time as readTime,
+            create_time as createTime,
+            update_time as updateTime
+        from contact
+        where uid = #{uid}
+    </select>
+    
+    <select id="selectContactByRoomIdAndUid" resultType="com.wen.im.common.model.entity.Contact">
+        select
+            id,
+            uid,
+            room_id as roomId,
+            last_msg_id as lastMsgId,
+            active_time as activeTime,
+            read_time as readTime,
+            create_time as createTime,
+            update_time as updateTime
+        from contact
+        where uid = #{uid} and room_id = #{roomId}
+    </select>
+
+    <select id="selectContactByContactId" resultType="com.wen.im.common.model.entity.Contact">
+        select
+            id,
+            uid,
+            room_id as roomId,
+            last_msg_id as lastMsgId,
+            active_time as activeTime,
+            read_time as readTime,
+            create_time as createTime,
+            update_time as updateTime
+        from contact
+        where id = #{contactId}
+    </select>
+
+    <insert id="save">
+        insert into `contact`(uid, room_id, last_msg_id, active_time, read_time, create_time, update_time)
+        values (#{uid}, #{roomId}, #{lastMsgId}, #{activeTime}, #{readTime}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <update id="updateRead">
+        update `contact`
+        set read_time = now(), active_time = now(), update_time = now()
+        where room_id = #{roomId} and uid = #{uid}
+    </update>
+    
+    <update id="updateLastMsgId">
+        update `contact`
+        set last_msg_id = #{msgId}, active_time = now(), update_time = now()
+        where room_id = #{roomId} and uid = #{uid}
+    </update>
+
+    <delete id="delContact">
+        delete from `contact`
+        where room_id = #{roomId} and uid = #{uid}
+    </delete>
+    
+    <delete id="removeAll">
+        delete from `contact`
+        where room_id = #{roomId}
+    </delete>
+    
+</mapper>

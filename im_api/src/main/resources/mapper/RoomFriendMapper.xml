@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.RoomFriendMapper">
+
+    <select id="selectRoomFriend" resultType="com.wen.im.common.model.entity.RoomFriend">
+        select
+            id,
+            room_id as roomId,
+            uid1 as uid1,
+            uid2 as uid2,
+            room_key as roomKey,
+            status as status,
+            create_time as createTime,
+            update_time as updateTime
+        from `room_friend`
+        where
+            uid1 = #{uid1} and uid2 = #{uid2}
+    </select>
+    
+    <select id="selectRoomFriendByRoomIdAndUi1" resultType="com.wen.im.common.model.entity.RoomFriend">
+        select
+            id,
+            room_id as roomId,
+            uid1 as uid1,
+            uid2 as uid2,
+            room_key as roomKey,
+            status as status,
+            create_time as createTime,
+            update_time as updateTime
+        from `room_friend`
+        where
+            room_id = #{roomId} and (uid2 = #{uid} or uid1 = #{uid})
+    </select>
+
+    <insert id="save">
+        insert into `room_friend`(room_id, uid1, uid2, room_key, status, create_time, update_time)
+        values (#{roomId}, #{uid1}, #{uid2}, #{roomKey}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+    
+</mapper>

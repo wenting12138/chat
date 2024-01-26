@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.UserApplyMapper">
+
+	<select id="selectApplyByUid" resultType="com.wen.im.common.model.entity.UserApply">
+		select
+		    id,
+		    uid,
+		    type,
+		    target_id as targetId,
+		    msg,
+		    status,
+		    extra,
+		    read_status as readStatus,
+		    create_time as createTime,
+		    update_time as updateTime
+		from user_apply
+		where target_id = #{uid}
+	</select>
+	
+	<select id="selectApplyById" resultType="com.wen.im.common.model.entity.UserApply">
+		select
+		    id,
+		    uid,
+		    type,
+		    target_id as targetId,
+		    msg,
+		    status,
+		    extra,
+		    read_status as readStatus,
+		    create_time as createTime,
+		    update_time as updateTime
+		from user_apply
+		where id = #{applyId}
+	</select>
+	
+	<insert id="save" keyProperty="id" useGeneratedKeys="true">
+		insert into user_apply(uid, type, target_id, msg, status, read_status, extra, create_time, update_time)
+		values (#{uid}, #{type}, #{targetId}, #{msg}, #{status}, #{readStatus}, #{extra}, #{createTime}, #{updateTime})
+	</insert>
+	
+	<select id="unreadCount" resultType="int">
+		select count(1)
+		from user_apply
+		where target_id = #{uid} and read_status = 1
+	</select>
+	
+	<update id="updateStatus">
+		update user_apply
+		set status = 2, read_status = 2, update_time = now()
+		where id = #{applyId}
+	</update>
+</mapper>

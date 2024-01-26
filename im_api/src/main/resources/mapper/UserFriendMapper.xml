@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.UserFriendMapper">
+
+    <select id="selectUserFriendByUid" resultType="com.wen.im.common.model.entity.UserFriend">
+        select id, friend_uid as friendUid, uid
+        from friend
+        where uid = #{uid}
+    </select>
+
+    <insert id="save">
+        insert into friend(uid, friend_uid)
+        values (#{uid}, #{friendUid})
+    </insert>
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.UserEmojiMapper">
+
+    <select id="getEmojiList" resultType="com.wen.im.common.model.entity.UserEmoji">
+        select id, uid, expression_url as expressionUrl, create_time as createTime
+        from user_emoji
+        where uid = #{uid}
+    </select>
+    <select id="getEmoji" resultType="com.wen.im.common.model.entity.UserEmoji">
+        select id, uid, expression_url as expressionUrl, create_time as createTime
+        from user_emoji
+        where id = #{id}
+    </select>
+
+    <delete id="delEmoji">
+        delete from user_emoji
+        where id = #{id}
+    </delete>
+    
+    <insert id="saveEmoji" useGeneratedKeys="true" keyProperty="id">
+        insert into user_emoji(uid, expression_url, create_time)
+        values (#{uid}, #{expressionUrl}, now())
+    </insert>
+</mapper>

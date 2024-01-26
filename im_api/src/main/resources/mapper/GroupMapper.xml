@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.GroupMapper">
+
+
+    <select id="selectGroupByRoomId" resultType="com.wen.im.common.model.entity.Group">
+        select
+            id as id,
+            room_id as roomId,
+            name,
+            avatar,
+            ext_json as extJson,
+            create_time as createTime,
+            update_time as updateTime
+        from `group`
+        where
+            room_id = #{roomId}
+    </select>
+  
+    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+        insert into `group`(room_id, name, avatar, ext_json, create_time, update_time)
+        values (#{roomId}, #{name}, #{avatar}, #{extJson}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <select id="selectUidListByRoomId" resultType="long">
+        select
+            gm.uid
+        from `group` g
+        left join group_member gm on gm.group_id = g.id
+        where
+            g.room_id = #{roomId}
+    </select>
+    
+    <delete id="delGroup">
+        delete from `group`
+        where id = #{groupId}
+    </delete>
+</mapper>

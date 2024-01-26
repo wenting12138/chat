@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.GroupMemberMapper">
+
+    <select id="selectGroupMemeberByRoomId" resultType="com.wen.im.common.model.entity.GroupMember">
+        select
+            gm.id,
+            gm.group_id as groupId,
+            gm.uid as uid,
+            gm.role as role,
+            gm.create_time as createTime,
+            gm.update_time as activeStatus
+        from group_member gm
+        left join `group` g on gm.group_id = g.id
+        where
+            g.room_id = #{roomId}
+            <if test="cursor != null and cursor > 0">
+                AND gm.id > #{cursor}
+            </if>
+        order by field(gm.role, 1, 2, 3, 4) asc, gm.id asc
+        limit #{pageSize}
+    </select>
+    
+    <select id="selectGroupMemeberListByRoomId" resultType="com.wen.im.common.model.entity.GroupMember">
+        select
+            gm.id,
+            gm.group_id as groupId,
+            gm.uid as uid,
+            gm.role as role,
+            gm.create_time as createTime,
+            gm.update_time as activeStatus
+        from group_member gm
+        left join `group` g on gm.group_id = g.id
+        where
+            g.room_id = #{roomId}
+    </select>
+    
+    <select id="selectGroupMemberByRoomIdAndUid" resultType="com.wen.im.common.model.entity.GroupMember">
+        select
+            gm.id,
+            gm.group_id as groupId,
+            gm.uid as uid,
+            gm.role as role,
+            gm.create_time as createTime,
+            gm.update_time as activeStatus
+        from group_member gm
+        where
+            gm.group_id = #{groupId}
+            AND gm.uid = #{uid}
+    </select>
+
+    <select id="selectMaxId" resultType="Long">
+        select
+            ifnull(max(gm.id), 0)
+        from group_member gm
+        left join `group` g on gm.group_id = g.id
+        where
+            g.room_id = #{roomId}
+        order by field(gm.role, 1, 2, 3, 4) asc, gm.id asc
+    </select>
+
+    <insert id="save">
+        insert into `group_member`(group_id, uid, role, create_time, update_time)
+        values (#{groupId}, #{uid}, #{role}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <update id="upateRole">
+        update `group_member`
+        set role = #{role}
+        where uid = #{uid} and group_id = #{groupId}
+    </update>
+    <delete id="delGroup">
+        delete from `group_member`
+        where uid = #{uid} and group_id = #{groupId}
+    </delete>
+    <delete id="removeAll">
+        delete from `group_member`
+        where group_id = #{groupId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wen.im.api.mapper.MessageMarkMapper">
+
+	<insert id="save">
+		insert into `message_mark`(msg_id, uid, type, status, create_time, update_time)
+		values (#{msgId}, #{uid}, #{type}, #{status}, #{createTime}, #{updateTime})
+	</insert>
+
+	<select id="markCount" resultType="map">
+		select
+			ifnull(sum(case when type = 1 then 1 else 0 end ), 0) AS likeCount,
+			ifnull(sum(case when type = 2 then 1 else 0 end ), 0) AS dislikeCount,
+			ifnull(sum(case when type = 1 and uid = #{curUid} then 1 else 0 end ), 0) AS userLike,
+			ifnull(sum(case when type = 2 and uid = #{curUid} then 1 else 0 end ), 0) AS userDislike
+		from `message_mark`
+		where msg_id = #{msgId} and status = 0
+	</select>
+	
+	<select id="select" resultType="com.wen.im.common.model.entity.MessageMark">
+		select
+		    id, msg_id, uid, type, status, create_time, update_time
+		from `message_mark`
+		where msg_id = #{msgId} and uid = #{uid}
+	</select>
+	
+	<update id="updateById">
+		update `message_mark`
+		set type = #{markType}, status = #{status}, update_time = now()
+		where id = #{id}
+	</update>
+	
+</mapper>
