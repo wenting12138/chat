@@ -284,6 +284,7 @@ class WS {
       case WsResponseMessageType.REGISTER_SUCCESS:
         console.log("register success")
         break
+
       case WsResponseMessageType.CALL_REMOTE_RES:
           console.log("call remote")
           callStore.calledReceiveRemoteRequest(params.data)
@@ -304,7 +305,13 @@ class WS {
           callStore.callerReceiveCandidate(params.data.candidate)
           break
       case WsResponseMessageType.CALL_SEND_HANGUP_RES:
-          callStore.receiveHangup(params.header.uid)
+          callStore.receiveHangup(params.data.toUid)
+          break
+      case WsResponseMessageType.CALL_SEND_REJECT_RES:
+          callStore.receiveReject(params.data.toUid)
+          break
+      case WsResponseMessageType.CALL_SEND_CANCEL_RES:
+          callStore.receiveCancel(params.data.toUid)
           break
 
       default: {

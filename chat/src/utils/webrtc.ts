@@ -113,8 +113,8 @@ const calledSendCandidate = (callInfo, candidate)=>{
     })
 }
 
-// 挂断/拒接
-const hangup = (curUid, toUid)=>{
+// 挂断
+const callHangup = (curUid, toUid)=>{
     wsIns.send({
         type: WsRequestMsgType.SEND_HANG_UP,
         header: {
@@ -127,6 +127,35 @@ const hangup = (curUid, toUid)=>{
         }
     })
 }
+// 拒接
+const callReject = (curUid, toUid)=>{
+    wsIns.send({
+        type: WsRequestMsgType.SEND_REJECT,
+        header: {
+            "clientVersion": clientVersion,
+            "clientIdentify": clientChannel,
+            "uid": curUid
+        },
+        body: {
+            toUid: toUid
+        }
+    })
+}
+// 拒接
+const callCancel = (curUid, toUid)=>{
+    wsIns.send({
+        type: WsRequestMsgType.SEND_CANCEL,
+        header: {
+            "clientVersion": clientVersion,
+            "clientIdentify": clientChannel,
+            "uid": curUid
+        },
+        body: {
+            toUid: toUid
+        }
+    })
+}
+
 
 
 export {
@@ -137,5 +166,7 @@ export {
     calledSendAnswer,
     callerSendCandidate,
     calledSendCandidate,
-    hangup,
+    callHangup,
+    callReject,
+    callCancel
 }

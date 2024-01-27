@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue'
+import {computed, onBeforeMount, onMounted, ref, watch} from 'vue'
 import {useCallStore} from '@/stores/call'
+import {ElMessage} from "element-plus";
+import poster from "@/assets/poster.gif";
+import { judgeClient } from '@/utils/detectDevice'
 
+const client = judgeClient()
 const callStore = useCallStore();
 const localVideo = ref<HTMLVideoElement>() // video标签实例，播放本人的视频
 const remoteVideo = ref<HTMLVideoElement>() // video标签实例，播放远端的视频
@@ -9,6 +13,9 @@ const localStream = computed(() => callStore.callInfo.localStream)
 const remoteStream = computed(() => callStore.callInfo.remoteStream)
 const calledCreateStream = computed(() => callStore.callInfo.calledCreateStream)
 const callerCreateStream = computed(() => callStore.callInfo.callerCreateStream)
+const hangupReq = computed(() => callStore.callInfo.hangupReq)
+const rejectReq = computed(() => callStore.callInfo.rejectReq)
+const cancelReq = computed(() => callStore.callInfo.cancelReq)
 const show = computed(() => callStore.callInfo.show)
 const called = computed(() => callStore.callInfo.called)
 const caller = computed(() => callStore.callInfo.caller)
@@ -40,11 +47,46 @@ watch(communicating, async (val, oldVal) => {
     }
 })
 
+watch(hangupReq, async (val, oldVal) => {
+    if (val && !oldVal) {
+      let name = caller ? callStore.callInfo.calledName : callStore.callInfo.callerName
+      ElMessage.warning(name + "已挂断你的电话")
+      // 关闭视频流
+      closeVideo()
+      let calledTmp = called.value
+      callStore.hangUp(false);
+      if (calledTmp) {
+        callStore.callInfo.show = false
+        callStore.reset()
+      }
+    }
+})
+
+watch(rejectReq, async (val, oldVal) => {
+  if (val && !oldVal) {
+    let name = caller ? callStore.callInfo.calledName : callStore.callInfo.callerName
+    ElMessage.warning(name + "已拒绝你的电话")
+    // 关闭视频流
+    closeVideo()
+    callStore.hangUp(false);
+  }
+})
+watch(cancelReq, async (val, oldVal) => {
+  if (val && !oldVal) {
+    let name = caller ? callStore.callInfo.calledName : callStore.callInfo.callerName
+    ElMessage.warning(name + "已取消你的电话")
+    // 关闭视频流
+    closeVideo()
+    callStore.hangUp(false);
+  }
+})
+
 // 发起方发起视频请求
 const callRemote = async () => {
   console.log('发起视频');
   // 发送呼叫请求
   callStore.callerRemoteRequest();
+  console.log(callStore.callInfo)
 }
 
 // 接收方同意视频请求
@@ -55,21 +97,44 @@ const calledAcceptCall = () => {
 // 挂断视频
 const hangUp = () => {
   console.log('挂断视频');
+  closeVideo()
+  let calledTmp = called.value
+  callStore.hangUp(true);
+  if (calledTmp) {
+    callStore.callInfo.show = false
+    callStore.reset()
+  }
+}
+const reject = () => {
+  console.log('拒接视频');
+  closeVideo()
+  callStore.reject(true);
+}
+const cancel = () => {
+  console.log('取消视频');
+  closeVideo()
+  callStore.cancel(true);
+}
+const closeVideo=()=>{
   // 关闭视频流
-  localVideo.value!.srcObject = null
-  remoteVideo.value!.srcObject = null
-  callStore.hangUp();
+  if(localVideo.value){
+    localVideo.value!.srcObject = null
+  }
+  // if (remoteVideo.value) {
+    remoteVideo.value!.srcObject = null
+  // }
 }
 const close = () => {
-  localVideo.value!.srcObject = null
-  remoteVideo.value!.srcObject = null
+  closeVideo()
   callStore.reset();
+  callStore.callInfo.show = false;
 }
 </script>
 
 <template>
   <ElDialog
       class="setting-box-modal"
+      style="background-color: #fafbff; width: 850px; height: 70vh"
       :model-value="show"
       :width="client === 'PC' ? 350 : '50%'"
       :close-on-click-modal="false"
@@ -77,47 +142,56 @@ const close = () => {
       :show-close="true"
       @close="close"
   >
-    <div class="flex items-center flex-col text-center p-12 h-screen">
-      <div class="relative h-full mb-4">
-        <video
-            ref="localVideo"
-            class="w-96 h-full bg-gray-200 mb-4 object-cover"
-        ></video>
+    <div style="display: flex; justify-content: flex-end">
+      <div style="margin-left: 20px">
+        <h2 style="font-family: Arial; color: #2287e1; margin-left: 40px" v-if="communicating">对方: {{caller ? callStore.callInfo.calledName : callStore.callInfo.callerName}}</h2>
         <video
             ref="remoteVideo"
+            :poster="poster"
+            style="height: 500px; width: 500px; box-sizing: border-box; padding: 0"
             class="w-32 h-48 absolute bottom-0 right-0 object-cover"
         ></video>
-        <div v-if="caller && calling" class="absolute top-2/3 left-36 flex flex-col items-center">
-          <p class="mb-4 text-white">等待对方接听...</p>
-          <img @click="hangUp" src="" class="w-16 cursor-pointer" alt="">
-        </div>
-        <div v-if="called && calling" class="absolute top-2/3 left-32 flex flex-col items-center">
-          <p class="mb-4 text-white">收到视频邀请...</p>
-          <div class="flex">
-            <button
-                class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white"
-                @click="hangUp"
-            >拒绝</button>
-            <button
-                class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white"
-                @click="calledAcceptCall"
-            >接受</button>
-          </div>
-        </div>
       </div>
-      <div class="flex gap-2 mb-4">
-        <button
-            class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
-            @click="callRemote"
-            v-if="!calling && !communicating"
-        >发起视频</button>
-        <button
-            class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white"
-            @click="hangUp"
-            v-if="(!called && calling) || communicating"
-        >挂断视频</button>
+      <div style="margin-left: 20px">
+        <h2 style="font-family: Arial; color: #2287e1; margin-left: 40px" v-if="communicating">我: {{caller ? callStore.callInfo.callerName : callStore.callInfo.calledName}}</h2>
+        <video
+            ref="localVideo"
+            :poster="poster"
+            style="height: 200px; width: 200px"
+            class="w-96 h-full bg-gray-200 mb-4 object-cover"
+        ></video>
       </div>
     </div>
+    <ElButton v-if="!calling && !communicating"
+              type="success"
+              block
+              @click="callRemote">
+      发起电话
+    </ElButton>
+    <ElButton v-if="calling && called"
+              type="success"
+              block
+              @click="calledAcceptCall">
+      接受电话
+    </ElButton>
+    <ElButton v-if="communicating"
+              type="danger"
+              block
+              @click="hangUp">
+      挂断视频通话
+    </ElButton>
+    <ElButton v-if="called && calling && !communicating"
+              type="danger"
+              block
+              @click="reject">
+      拒接视频通话
+    </ElButton>
+    <ElButton v-if="caller && calling && !communicating"
+              type="danger"
+              block
+              @click="cancel">
+      取消视频通话
+    </ElButton>
   </ElDialog>
 </template>
 

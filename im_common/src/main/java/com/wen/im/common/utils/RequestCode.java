@@ -52,6 +52,8 @@ public enum RequestCode {
     // 发送 candidate B -> A
     SEND_CANDIDATE_2_REQ(50005),
     SEND_HANGUP_REQ(50006),
+    SEND_REJECT_REQ(50007),
+    SEND_CANCEL_REQ(50008),
     ;
     int code;
 

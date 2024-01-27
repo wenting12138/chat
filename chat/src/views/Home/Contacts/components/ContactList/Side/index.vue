@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useContactStore } from '@/stores/contacts'
 import { useGlobalStore } from '@/stores/global'
+import { useMeetStore } from '@/stores/meet'
 import type { ContactItem as ContactItemType, RequestFriendItem } from '@/services/types'
 
 import ContactItem from './ContactItem.vue'
@@ -9,6 +10,7 @@ import NewFriendItem from './NewFriendItem.vue'
 
 const contactStore = useContactStore()
 const globalStore = useGlobalStore()
+const meetStore = useMeetStore()
 
 const active = ref('1')
 const onFrozen = ref(true)
@@ -32,6 +34,9 @@ const onChange = () => {
 const onCreateGroup = () => {
   globalStore.createGroupModalInfo.show = true
 }
+const onCreateMeet = () => {
+  meetStore.meetInfo.show = true
+}
 const onAddFriend = () => {
   globalStore.addFriendInfo.show = true
 }
@@ -39,12 +44,14 @@ const onAddFriend = () => {
 
 <template>
   <div class="side">
-    <ElButton class="add-group" type="primary" size="small" @click="onCreateGroup"
-      >创建群聊</ElButton
-    >
-    <ElButton class="add-group" style="margin-top: 10px" type="primary" size="small" @click="onAddFriend"
-    >搜索朋友</ElButton
-    >
+    <div style="display: flex">
+      <ElButton class="add-group" type="primary" size="small" @click="onCreateGroup"
+      >创建群聊</ElButton>
+      <ElButton class="add-group" style=""  type="primary" size="small" @click="onCreateMeet"
+      >创建会议</ElButton>
+      <ElButton class="add-group" style="" type="primary" size="small" @click="onAddFriend"
+      >搜索朋友</ElButton>
+    </div>
     <el-collapse class="side-collapse" v-model="active" @change="onChange" accordion>
       <el-collapse-item title="新的朋友" name="1">
         <ul

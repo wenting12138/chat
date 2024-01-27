@@ -39,6 +39,8 @@ export enum WsResponseMessageType {
   // // 发送 candidate B -> A
   CALL_SEND_CANDIDATE_2_RES = 40007,
   CALL_SEND_HANGUP_RES = 40008,
+  CALL_SEND_REJECT_RES = 40009,
+  CALL_SEND_CANCEL_RES = 40010,
 }
 
 /**
@@ -70,8 +72,12 @@ export enum WsRequestMsgType {
   CALLER_SEND_CANDIDATE = 50004,
   // /** 发送 candidate 信令  B -> A */
   CALLER_SEND_CANDIDATE_2 = 50005,
-  // 挂断 / 拒接
+  // 挂断
   SEND_HANG_UP = 50006,
+  // 拒接
+  SEND_REJECT = 50007,
+  // 取消
+  SEND_CANCEL = 50008,
 }
 
 export type WsReqMsgContentType = {

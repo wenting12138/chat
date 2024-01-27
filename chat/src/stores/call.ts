@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import {reactive} from 'vue'
+import { useUserInfo } from '@/hooks/useCached'
 import {
     getLocalStream,
     callerRemote,
@@ -8,79 +9,160 @@ import {
     calledSendAnswer,
     callerSendCandidate,
     calledSendCandidate,
-    hangup
+    callHangup,
+    callReject,
+    callCancel
 } from "@/utils/webrtc";
+import {types} from "sass";
+import List = types.List;
 
 export const useCallStore = defineStore('call', () => {
     const callInfo = reactive<{
         show: boolean,
         calledUid: number
+        calledName: string
         callerUid: number,
+        callerName: string,
         called: boolean,
         caller: boolean,
         calling: boolean,
         communicating: boolean,
-        peer: RTCPeerConnection,
         localStream: MediaStream,
+        peer: RTCPeerConnection,
         remoteStream: MediaStream,
         calledCreateStream: boolean,
         callerCreateStream: boolean,
+        hangupReq: boolean,
+        rejectReq: boolean,
+        cancelReq: boolean,
     }>({
         show: false,  // 是否展示页面
         calledUid: undefined, // 接收者uid
+        calledName: undefined,
         callerUid: undefined, // 拨打者uid
+        callerName: undefined,
         called: false,   // 是否是接收方
         caller: false,  // 是否是发起方
         calling: false,  // 呼叫中
         communicating: false, // 视频通话中
-        peer: undefined,
         localStream: undefined,
+        peer: undefined,
         remoteStream: undefined,
         calledCreateStream: false,
         callerCreateStream: false,
+        hangupReq: false,
+        rejectReq: false,
+        cancelReq: false,
     })
+    const close = ()=>{
+        callInfo.called = false;
+        callInfo.caller = false;
+        callInfo.calling = false;
+        callInfo.communicating = false;
+        if (callInfo.peer) {
+            callInfo.peer.close()
+            callInfo.peer = undefined
+        }
+        if (callInfo.localStream) {
+            for (let track of callInfo.localStream.getTracks()) {
+                track.stop();
+            }
+        }
+        if (callInfo.remoteStream) {
+            for (let track of callInfo.remoteStream.getTracks()) {
+                track.stop();
+            }
+        }
+        callInfo.localStream = undefined;
+        callInfo.remoteStream = undefined;
+        callInfo.calledCreateStream = false;
+        callInfo.callerCreateStream = false;
+        callInfo.hangupReq = false;
+        callInfo.rejectReq = false;
+        callInfo.cancelReq = false;
+    }
     // reset
     const reset = ()=>{
         callInfo.calledUid = undefined;
+        callInfo.calledName = undefined;
         callInfo.callerUid = undefined;
-        callInfo.called = false;
-        callInfo.caller = false;
-        callInfo.calling = false;
-        callInfo.communicating = false;
-        callInfo.peer.close()
-        callInfo.peer = undefined
-        callInfo.localStream.getTracks()[0].stop();
-        callInfo.remoteStream.getTracks()[0].stop();
-        callInfo.localStream = undefined;
-        callInfo.remoteStream = undefined;
-        callInfo.calledCreateStream = false;
-        callInfo.callerCreateStream = false;
+        callInfo.callerName = undefined;
+        close()
     }
-    // 挂断
-    const hangUp = ()=>{
-        // 发送hangup信令
-        if (callInfo.called) {
-            hangup(callInfo.calledUid, callInfo.callerUid);
-        }else {
-            hangup(callInfo.callerUid, callInfo.calledUid);
+    // 拒接
+    const reject = (isSendSignal)=>{
+        if (isSendSignal) {
+            if (callInfo.called) {
+                callReject(callInfo.calledUid, callInfo.callerUid);
+            }
         }
-        callInfo.called = false;
-        callInfo.caller = false;
-        callInfo.calling = false;
-        callInfo.communicating = false;
-        callInfo.peer.close()
-        callInfo.peer = undefined
-        callInfo.localStream.getTracks()[0].stop();
-        callInfo.remoteStream.getTracks()[0].stop();
-        callInfo.localStream = undefined;
-        callInfo.remoteStream = undefined;
-        callInfo.calledCreateStream = false;
-        callInfo.callerCreateStream = false;
+        close()
+    }
+    // 取消
+    const cancel = (isSendSignal)=>{
+        if (isSendSignal) {
+            if (callInfo.caller) {
+                callCancel(callInfo.callerUid, callInfo.calledUid);
+            }
+        }
+        close()
+    }
+
+    // 挂断
+    const hangUp = (isSendSignal)=>{
+        // 发送hangup信令
+        if (isSendSignal) {
+            if (callInfo.called) {
+                callHangup(callInfo.calledUid, callInfo.callerUid);
+            }else {
+                callHangup(callInfo.callerUid, callInfo.calledUid);
+            }
+        }
+        close();
     }
 
     const receiveHangup = (fromUid)=> {
-
+        callInfo.hangupReq = true
     }
+    const receiveReject = (fromUid)=> {
+        callInfo.rejectReq = true
+    }
+
+    const receiveCancel = (fromUid)=> {
+        callInfo.cancelReq = true
+    }
+
+
+    const bindChangeEvent = ()=>{
+        callInfo.peer.oniceconnectionstatechange = (event: Event) => {
+            if (callInfo.peer!.iceConnectionState === 'connected') {
+                callInfo.peer!.getStats(null).then((stats: RTCStatsReport) =>
+                    stats.forEach((report) => {
+                        if (report.type === 'transport') {
+                            let activeCandidatePair = stats.get(report.selectedCandidatePairId)
+                            let remoteCandidate = stats.get(activeCandidatePair.remoteCandidateId)
+                            let localCandidate = stats.get(activeCandidatePair.localCandidateId)
+                            // ipv6
+                            if (localCandidate && localCandidate.address && localCandidate.address.indexOf(':') !== -1) {
+                                console.log(`网络通道:[${localCandidate.address}]:${localCandidate.port}<=>[${remoteCandidate.address}]:${remoteCandidate.port}`)
+                            } else {
+                                console.log(`网络通道:${localCandidate.address}:${localCandidate.port}<=>${remoteCandidate.address}:${remoteCandidate.port}`)
+                            }
+                            console.log('本地candidate', localCandidate)
+                            console.log('远程candidate', remoteCandidate)
+                            callInfo.peer.addIceCandidate(remoteCandidate).then(res => {
+                                console.log("success")
+                            }).catch(e => {
+                                console.log("Error: Failure during addIceCandidate()", e);
+                            });
+                        }
+                    })
+                )
+            } else {
+                console.log('ice状态变更:')
+            }
+
+        }}
 
     // 发送请求
     const callerRemoteRequest = async () => {
@@ -100,7 +182,9 @@ export const useCallStore = defineStore('call', () => {
         callInfo.calling = true  // 通话中
         callInfo.show = true    // 弹框打开
         callInfo.callerUid = body.callerUid
+        callInfo.callerName = useUserInfo(body.callerUid).value.name
         callInfo.calledUid = body.calledUid
+        callInfo.calledName = useUserInfo(body.calledUid).value.name
     }
     // 接收者同意了请求通话
     const calledAcceptCallRequest = ()=>{
@@ -132,6 +216,7 @@ export const useCallStore = defineStore('call', () => {
                     callerSendCandidate(callInfo, event.candidate)
                 }
             }
+            bindChangeEvent()
             callInfo.peer!.ontrack = (e) => {
                 if (e && e.streams) {
                     console.log("收到对方音频/视频流数据...");
@@ -169,6 +254,7 @@ export const useCallStore = defineStore('call', () => {
                     calledSendCandidate(callInfo, event.candidate)
                 }
             }
+            bindChangeEvent()
             callInfo.peer!.ontrack = (e) => {
                 if (e && e.streams) {
                     console.log("收到对方音频/视频流数据...");
@@ -240,6 +326,10 @@ export const useCallStore = defineStore('call', () => {
         callerReceiveCandidate,
         reset,
         hangUp,
+        reject,
+        cancel,
         receiveHangup,
+        receiveReject,
+        receiveCancel,
     }
 })

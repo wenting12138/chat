@@ -52,6 +52,8 @@ public enum ResponseCode {
     // 发送 candidate  B - >
     CALL_SEND_CANDIDATE_2(40007),
     CALL_SEND_HANGUP(40008),
+    CALL_SEND_REJECT(40009),
+    CALL_SEND_CANCEL(40010),
     ;
     int code;
 

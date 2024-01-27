@@ -48,10 +48,13 @@ const onStartSession = async (uid: number) => {
 const onStartCall = async (uid: number) => {
   console.log("calledUid" + uid)
   console.log("callerUid" + JSON.parse(localStorage.getItem("USER_INFO")).uid)
+  console.log(currentUser)
   callStore.callInfo.calledUid = uid
+  callStore.callInfo.calledName = currentUser.value.name
   callStore.callInfo.callerUid = JSON.parse(localStorage.getItem("USER_INFO")).uid
+  callStore.callInfo.callerName = JSON.parse(localStorage.getItem("USER_INFO")).name
   callStore.callInfo.show = true
-  callStore.callInfo.accept = false
+  console.log(callStore.callInfo)
 }
 
 </script>

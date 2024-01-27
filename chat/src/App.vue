@@ -18,15 +18,15 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-image: url('@/assets/login_bg.jpg');
+  background-image: url('@/assets/img.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 }
 
-@supports (background-image: url('@/assets/login_bg.webp')) {
+@supports (background-image: url('@/assets/img.png')) {
   .app-wrapper {
-    background-image: url('@/assets/login_bg.webp');
+    background-image: url('@/assets/img.png');
   }
 }
 </style>
