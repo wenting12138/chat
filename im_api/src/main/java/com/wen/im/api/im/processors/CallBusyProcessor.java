@@ -1,22 +1,20 @@
 package com.wen.im.api.im.processors;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.wen.im.common.model.dto.chat.body.SingleChatBody;
 import com.wen.im.common.utils.RequestCode;
 import com.wen.im.common.utils.ResponseCode;
 import com.wen.im.core.protocols.ImRequest;
 import com.wen.im.core.protocols.ImResponse;
 import com.wen.im.core.server.NettyImServer;
 import com.wen.im.core.server.NettySpringWebsocketRemotingProcessor;
-import com.wen.im.core.server.NettyWebSocketRemotingProcessor;
+import io.netty.channel.ChannelHandlerContext;
 import org.springframework.stereotype.Component;
 
 /**
  * @author wenting
  */
 @Component
-public class NewFriendProcessor implements NettySpringWebsocketRemotingProcessor {
+public class CallBusyProcessor implements NettySpringWebsocketRemotingProcessor {
+
     private  NettyImServer server;
 
     @Override
@@ -25,14 +23,23 @@ public class NewFriendProcessor implements NettySpringWebsocketRemotingProcessor
     }
 
     @Override
-    public void handleBackendRequest(ImRequest request) {
-        SingleChatBody body = JSONObject.parseObject(JSON.toJSONString(request.getBody()), SingleChatBody.class);
-        ImResponse response = ImResponse.result(ResponseCode.NEW_FRIEND_SESSION, body.getBody(), "新好友申请");
-        this.server.getClientService().sendMsg(String.valueOf(body.getUid()), response);
+    public ImResponse handleFrontend(ChannelHandlerContext ctx, ImRequest request) throws Exception{
+        server.sendMqMsg(request);
+        return null;
     }
 
     @Override
-    public RequestCode getRequestCode() {
-        return RequestCode.REQUEST_NEW_FRIEND;
+    public void handleBackendRequest(ImRequest request) {
+        com.alibaba.fastjson2.JSONObject body = com.alibaba.fastjson2.JSONObject.from(request.getBody());
+        String toUid = body.getString("toUid");
+        ImResponse response = ImResponse.result(ResponseCode.CALL_SEND_BUSY, request.getBody(), "");
+        server.getClientService().sendMsg(toUid, response);
     }
+
+
+    @Override
+    public RequestCode getRequestCode() {
+        return RequestCode.SEND_BUSY_REQ;
+    }
+
 }

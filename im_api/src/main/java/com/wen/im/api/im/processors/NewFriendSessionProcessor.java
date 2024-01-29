@@ -32,7 +32,7 @@ public class NewFriendSessionProcessor implements NettySpringWebsocketRemotingPr
     @Override
     public void handleBackendRequest(ImRequest request) {
         RoomChatBody body = JSON.parseObject(JSON.toJSONString(request.getBody()), RoomChatBody.class);
-        ImResponse response = ImResponse.result(request.getCode(), body.getBody(), "新好友会话");
+        ImResponse response = ImResponse.result(ResponseCode.NEW_FRIEND_SESSION, body.getBody(), "新好友会话");
         List<String> allUid = body.getUidList().stream().map(String::valueOf).collect(Collectors.toList());
         this.server.getClientService().sendMsg(allUid, response);
     }

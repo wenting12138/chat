@@ -29,8 +29,7 @@ public class SendMsgListener implements ApplicationListener<SendMsgEvent> {
             Room room = event.getRoom();
             // 发送消息
             ImRequest imRequest = ImRequest.createRequest(
-                    room.getType() == 2 ? RequestCode.SINGLE_CHAT.getCode()
-                            :RequestCode.ROOM_CHAT.getCode(),
+                    RequestCode.SINGLE_CHAT.getCode(),
                     event.getUid()
             );
             imRequest.setBody(new RoomChatBody(event.getBody(), event.getUidListAll()));

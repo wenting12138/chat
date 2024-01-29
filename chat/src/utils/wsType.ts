@@ -2,28 +2,6 @@ import type { UserInfoType, UserItem } from '@/services/types'
 
 // 1.登录返回二维码 2.用户扫描成功等待授权 3.用户登录成功返回用户信息 4.收到消息 5.上下线推送 6.前端token失效
 export enum WsResponseMessageType {
-  /** 1.登录返回二维码 */
-  LoginQrCode = 1,
-  /** 2.用户扫描成功等待授权 */
-  WaitingAuthorize,
-  /** 3.用户登录成功返回用户信息 */
-  LoginSuccess,
-  /** 4.收到消息 */
-  ReceiveMessage,
-  /** 5.上下线推送 */
-  OnOffLine,
-  /** 6.前端token失效 */
-  TokenExpired,
-  /** 7.禁用的用户 */
-  InValidUser,
-  /** 8.点赞、倒赞更新通知 */
-  WSMsgMarkItem,
-  /** 消息撤回 */
-  WSMsgRecall,
-  /** 新好友申请 */
-  RequestNewFriend,
-  /** 新好友会话 */
-  NewFriendSession,
   PONG = 39999,
   REGISTER_SUCCESS = 40000,
   // 接收到电话请求
@@ -38,28 +16,28 @@ export enum WsResponseMessageType {
   CALL_SEND_CANDIDATE_RES = 40006,
   // // 发送 candidate B -> A
   CALL_SEND_CANDIDATE_2_RES = 40007,
+  // 挂断事件
   CALL_SEND_HANGUP_RES = 40008,
+  // 对方拒绝事件
   CALL_SEND_REJECT_RES = 40009,
+  // 对方取消事件
   CALL_SEND_CANCEL_RES = 40010,
+  // 对方正忙
+  CALL_SEND_BUSY_RES = 40011,
+  /** 4.收到消息 */
+  ReceiveMessage = 40012,
+  /** 新好友申请 */
+  RequestNewFriend = 40013,
+  /** 新好友会话 */
+  NewFriendSession = 40014,
 }
 
 /**
  * ws 请求 消息类型 1.请求登录二维码，2心跳检测 3用户认证
  */
 export enum WsRequestMsgType {
-  /** 1.请求登录二维码 */
-  RequestLoginQrCode = 1,
-  /** 2心跳检测 */
-  HeartBeatDetection,
-  /** 3用户认证 */
-  Authorization,
-  /** 4.登录 */
-  Login = 10002,
   /** 5.登录注册 */
   REGISTER = 10001,
-
-
-
   /** 6.向信令服务器发送发起请求的事件 */
   CALL_REMOTE = 50000,
   /** 6.向信令服务器发送发起同意的事件 */
@@ -78,6 +56,8 @@ export enum WsRequestMsgType {
   SEND_REJECT = 50007,
   // 取消
   SEND_CANCEL = 50008,
+  // 忙线
+  SEND_BUSY = 50009,
 }
 
 export type WsReqMsgContentType = {

@@ -151,3 +151,31 @@
     height: 100px;
   }
 }
+
+.el-header {
+  background-color: #B3C0D1;
+  padding: 0;
+  margin: 0;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+.el-aside {
+  background-color: #D3DCE6;
+  margin: 0;
+  padding-top: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 20px;
+}
+
+.el-main {
+  background-color: #E9EEF3;
+
+  padding: 0;
+}
+
+.el-container {
+  height: calc(100vh - 84px)
+}

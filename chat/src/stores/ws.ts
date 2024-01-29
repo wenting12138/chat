@@ -15,11 +15,11 @@ export const useWsLoginStore = defineStore('wsLogin', () => {
   const showLogin = ref(false)
   const loginStatus = ref(LoginStatus.Init)
   function getLoginQrCode() {
-    wsIns.send({ type: WsRequestMsgType.RequestLoginQrCode })
+
   }
-  function login(data) {
-    wsIns.send({ type: WsRequestMsgType.Login, data: data })
-  }
+  // function login(data) {
+  //   wsIns.send({ type: WsRequestMsgType.Login, data: data })
+  // }
   function resetLoginState() {
     loginQrCode.value = undefined
     loginStatus.value = LoginStatus.Init
@@ -31,6 +31,6 @@ export const useWsLoginStore = defineStore('wsLogin', () => {
     showLogin,
     resetLoginState,
     getLoginQrCode,
-    login,
+    // login,
   }
 })

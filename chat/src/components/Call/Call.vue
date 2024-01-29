@@ -9,43 +9,31 @@ const client = judgeClient()
 const callStore = useCallStore();
 const localVideo = ref<HTMLVideoElement>() // video标签实例，播放本人的视频
 const remoteVideo = ref<HTMLVideoElement>() // video标签实例，播放远端的视频
-const localStream = computed(() => callStore.callInfo.localStream)
-const remoteStream = computed(() => callStore.callInfo.remoteStream)
-const calledCreateStream = computed(() => callStore.callInfo.calledCreateStream)
-const callerCreateStream = computed(() => callStore.callInfo.callerCreateStream)
+const isDisplay = computed(() => callStore.callInfo.isDisplay)
 const hangupReq = computed(() => callStore.callInfo.hangupReq)
 const rejectReq = computed(() => callStore.callInfo.rejectReq)
 const cancelReq = computed(() => callStore.callInfo.cancelReq)
+const busyReq = computed(() => callStore.callInfo.busyReq)
 const show = computed(() => callStore.callInfo.show)
-const called = computed(() => callStore.callInfo.called)
-const caller = computed(() => callStore.callInfo.caller)
-const calling = computed(() => callStore.callInfo.calling)
-const communicating = computed(() => callStore.callInfo.communicating)
+const localStream = computed(() => callStore.wc.localStream)
+const called = computed(() => callStore.called)
+const caller = computed(() => callStore.caller)
+const calling = computed(() => callStore.calling)
+const communicating = computed(() => callStore.communicating)
 
-// 接收者 接收了offer 才会播放本地视频流
-watch(calledCreateStream, async (val, oldVal) => {
-    if (called) {
-      console.log("addLocaltionStream", localStream.value)
-      localVideo.value!.srcObject = localStream.value
-      localVideo.value!.play()
+watch(localStream, async (val, oldVal) => {
+  console.log("localStream val", val)
+  console.log("localStream oldVal", oldVal)
+  if (oldVal) {
+    for (let track of oldVal.getTracks()) {
+      console.log("删除 oldval")
+      track.stop();
     }
-})
-
-watch(callerCreateStream, async (val, oldVal) => {
-    if (caller && val && !oldVal) {
-      console.log("addLocaltionStream", localStream.value)
-      localVideo.value!.srcObject = localStream.value
-      localVideo.value!.play()
-    }
-})
-
-watch(communicating, async (val, oldVal) => {
-    if (remoteStream.value) {
-      console.log("addRemoteStream", remoteStream.value, called.value, caller.value)
-      remoteVideo.value!.srcObject = remoteStream.value
-      remoteVideo.value!.play()
-    }
-})
+  }
+  if (val && called) {
+    refreshLocalStream();
+  }
+});
 
 watch(hangupReq, async (val, oldVal) => {
     if (val && !oldVal) {
@@ -53,12 +41,8 @@ watch(hangupReq, async (val, oldVal) => {
       ElMessage.warning(name + "已挂断你的电话")
       // 关闭视频流
       closeVideo()
-      let calledTmp = called.value
       callStore.hangUp(false);
-      if (calledTmp) {
-        callStore.callInfo.show = false
-        callStore.reset()
-      }
+      callStore.callInfo.show = false
     }
 })
 
@@ -80,30 +64,40 @@ watch(cancelReq, async (val, oldVal) => {
     callStore.hangUp(false);
   }
 })
+watch(busyReq, async (val, oldVal) => {
+  if (val && !oldVal) {
+    let name = caller ? callStore.callInfo.calledName : callStore.callInfo.callerName
+    ElMessage.warning(name + "正在通话中")
+    // 关闭视频流
+    closeVideo()
+    callStore.hangUp(false);
+  }
+})
 
 // 发起方发起视频请求
 const callRemote = async () => {
   console.log('发起视频');
   // 发送呼叫请求
-  callStore.callerRemoteRequest();
-  console.log(callStore.callInfo)
+  await callStore.callerRemoteRequest(refreshRemoteStream);
+  openLocalStream();
+}
+
+const openLocalStream = ()=>{
+  localVideo.value!.srcObject = callStore.wc.localStream;
+  localVideo.value!.play()
 }
 
 // 接收方同意视频请求
 const calledAcceptCall = () => {
-  callStore.calledAcceptCallRequest()
+  callStore.calledAcceptCallRequest(refreshRemoteStream)
 }
 
 // 挂断视频
 const hangUp = () => {
   console.log('挂断视频');
   closeVideo()
-  let calledTmp = called.value
   callStore.hangUp(true);
-  if (calledTmp) {
-    callStore.callInfo.show = false
-    callStore.reset()
-  }
+  callStore.callInfo.show = false
 }
 const reject = () => {
   console.log('拒接视频');
@@ -115,14 +109,35 @@ const cancel = () => {
   closeVideo()
   callStore.cancel(true);
 }
+const display = () => {
+  console.log('屏幕共享');
+  callStore.changeDisplayStream(refreshLocalStream);
+}
+const stopDisplay = () => {
+  console.log('停止屏幕共享');
+  callStore.stopDisplay(refreshLocalStream);
+}
+const refreshLocalStream =()=>{
+  localVideo.value!.srcObject = undefined
+  localVideo.value!.srcObject = callStore.wc.localStream
+  localVideo.value!.play()
+}
+const refreshRemoteStream =()=>{
+  callStore.calling = false;
+  callStore.communicating = true;
+  remoteVideo.value!.srcObject = undefined
+  remoteVideo.value!.srcObject = callStore.wc.remoteStream;
+  remoteVideo.value!.play()
+}
+
 const closeVideo=()=>{
   // 关闭视频流
   if(localVideo.value){
     localVideo.value!.srcObject = null
   }
-  // if (remoteVideo.value) {
+  if (remoteVideo.value) {
     remoteVideo.value!.srcObject = null
-  // }
+  }
 }
 const close = () => {
   closeVideo()
@@ -192,6 +207,19 @@ const close = () => {
               @click="cancel">
       取消视频通话
     </ElButton>
+    <ElButton v-if="communicating && !isDisplay"
+              type="success"
+              block
+              @click="display">
+      屏幕共享
+    </ElButton>
+    <ElButton v-if="isDisplay"
+              type="danger"
+              block
+              @click="stopDisplay">
+      停止屏幕共享
+    </ElButton>
+
   </ElDialog>
 </template>
 
