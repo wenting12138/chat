@@ -127,6 +127,14 @@ export type MarkMsgReq = {
   msgId: number
 }
 
+export type CreateRoomType = {
+  nickname: string,
+  roomId: string,
+  roomPw: string,
+  radio: string
+}
+
+
 export type UserInfoType = {
   /** 用户唯一标识 */
   uid: number

@@ -1,5 +1,7 @@
-package com.wen.im.api.im.processors;
+package com.wen.im.api.im.processors.call;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.wen.im.common.utils.RequestCode;
 import com.wen.im.common.utils.ResponseCode;
 import com.wen.im.core.protocols.ImRequest;
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Component;
  * @author wenting
  */
 @Component
-public class CallRejectProcessor implements NettySpringWebsocketRemotingProcessor {
+public class CallAcceptProcessor implements NettySpringWebsocketRemotingProcessor {
 
     private  NettyImServer server;
 
@@ -31,15 +33,16 @@ public class CallRejectProcessor implements NettySpringWebsocketRemotingProcesso
     @Override
     public void handleBackendRequest(ImRequest request) {
         com.alibaba.fastjson2.JSONObject body = com.alibaba.fastjson2.JSONObject.from(request.getBody());
-        String toUid = body.getString("toUid");
-        ImResponse response = ImResponse.result(ResponseCode.CALL_SEND_REJECT, request.getBody(), "");
-        server.getClientService().sendMsg(toUid, response);
+        String calledUid = body.getString("calledUid");
+        String callerUid = body.getString("callerUid");
+        ImResponse response = ImResponse.result(ResponseCode.CALL_ACCEPT_RES, request.getBody(), "");
+        server.getClientService().sendMsg(callerUid, response);
     }
 
 
     @Override
     public RequestCode getRequestCode() {
-        return RequestCode.SEND_REJECT_REQ;
+        return RequestCode.ACCEPT_CALL_REQ;
     }
 
 }

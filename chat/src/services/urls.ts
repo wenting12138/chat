@@ -34,6 +34,7 @@ export default {
   getMsgReadList: `${prefix}/imapi/chat/msg/read/page`, // 消息的已读未读列表
   getMsgReadCount: `${prefix}/imapi/chat/msg/read`, // 消息已读未读数
   createGroup: `${prefix}/imapi/room/group`, // 新增群组
+  createMeet: `${prefix}/imapi/room/group/createMeet`, // 新增会议室
   getGroupUserList: `${prefix}/imapi/room/public/group/member/page`,
   inviteGroupMember: `${prefix}/imapi/room/group/member`, // 邀请群成员
   exitGroup: `${prefix}/imapi/room/group/member/exit`, // 退群

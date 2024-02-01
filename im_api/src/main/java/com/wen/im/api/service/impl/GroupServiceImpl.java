@@ -349,4 +349,41 @@ public class GroupServiceImpl implements GroupService {
         dto.setRoomId(roomId);
         return dto;
     }
+
+    private Long createMeet() {
+        Room room = new Room();
+        room.setHotFlag(RoomHotFlagEnum.NONE.getType());
+        room.setType(RoomTypeEnum.MEET.getType());
+        room.setCreateTime(new Date());
+        room.setActiveTime(new Date());
+        roomMapper.saveRoom(room);
+        return room.getId();
+    }
+
+    private void createMeetGroup(Long curUid, Long roomId) {
+        UserInfo userInfo = userMapper.selectUserByUid(curUid);
+        Group group = new Group();
+        group.setAvatar(userInfo.getAvatar());
+        group.setRoomId(roomId);
+        group.setCreateTime(new Date());
+        group.setName(userInfo.getName() + "的会议");
+        groupMapper.save(group);
+        Long groupId = group.getId();
+
+        // 群主成员
+        GroupMember groupLeader = new GroupMember();
+        groupLeader.setUid(curUid);
+        groupLeader.setGroupId(groupId);
+        groupLeader.setRole(GroupMemeberRoleEnum.GROUP_LEADER.getRole());
+        groupLeader.setCreateTime(new Date());
+        groupMemberMapper.save(groupLeader);
+    }
+
+
+    @Override
+    public ApiResponse createMeet(JSONObject req, Long uid) {
+        Long meet = createMeet();
+        createMeetGroup(uid, meet);
+        return ApiResponse.success(meet);
+    }
 }

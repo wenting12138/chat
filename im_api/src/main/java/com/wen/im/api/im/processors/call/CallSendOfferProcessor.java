@@ -1,4 +1,4 @@
-package com.wen.im.api.im.processors;
+package com.wen.im.api.im.processors.call;
 
 import com.wen.im.common.utils.RequestCode;
 import com.wen.im.common.utils.ResponseCode;

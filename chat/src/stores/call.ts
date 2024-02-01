@@ -106,7 +106,7 @@ export const useCallStore = defineStore('call', () => {
     // 接收者收到请求通话
     const calledReceiveRemoteRequest = (body)=>{
         console.log("2、接收者收到发起者的建立连接请求", wc)
-        if (wc.value && (wc.value.isCalling() || wc.value.isCalling())) {
+        if (wc.value && (wc.value.isCalling() || wc.value.isCommunicating())) {
             wc.value.sendCalledBusy(body.calledUid, body.callerUid);
         }else {
             // 弹框打开

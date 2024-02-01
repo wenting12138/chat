@@ -4,11 +4,12 @@ import type {
   CacheBadgeReq,
   CacheUserItem,
   CacheUserReq,
-  ContactItem,
+  ContactItem, CreateRoomType,
   EmojiItem,
   GroupDetailReq,
   GroupStatisticType,
-  ListResponse, LoginByUid, LoginType,
+  ListResponse,
+  LoginType,
   MarkMsgReq,
   MessageReq,
   MessageType,
@@ -137,4 +138,5 @@ export default {
     }),
   /** 登录 */
   login: (data?: LoginType) => postRequest<UserInfoType>(urls.login, data),
+  createMeet: (data?: CreateRoomType) => postRequest<number>(urls.createMeet, data),
 }

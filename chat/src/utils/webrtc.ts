@@ -91,20 +91,28 @@ class WebrtcConnection {
     }
     receiveHangup(data){
         this.close()
-        this.hangupcallback(data);
+        if (this.hangupcallback) {
+            this.hangupcallback(data);
+        }
     }
     receiveReject(data){
         this.close()
-        this.rejectcallback(data);
+        if (this.rejectcallback) {
+            this.rejectcallback(data);
+        }
     }
     receiveCancel(data){
         this.close()
-        this.cancelback(data);
+        if (this.cancelback) {
+            this.cancelback(data);
+        }
 
     }
     receiveBusy(data){
         this.close()
-        this.busycallback(data);
+        if (this.busycallback) {
+            this.busycallback(data);
+        }
     }
     isCaller(){
         return this.role === 'caller';
@@ -138,6 +146,14 @@ class WebrtcConnection {
         this.peer.onicecandidate = this.iceCandidateCallBack;
         this.peer.oniceconnectionstatechange = this.iceConnectionStateChangeCallBack;
         this.peer.ontrack = this.trackCallBack;
+    }
+    async connection(callerUid, calledUid, callerName, calledName){
+        this.setCallBaseInfo(callerUid, calledUid, callerName, calledName);
+        this.setCaller();  // 呼叫者
+        this.callStatus = 'calling'  // 呼叫中
+        await this.init();
+        await this.callerReceiveAcceptCall();
+
     }
     // 发送请求呼叫
     async sendCallerRemote() {
@@ -282,7 +298,9 @@ class WebrtcConnection {
         if (e && e.streams) {
             console.log("收到对方音频/视频流数据...", e);
             this.remoteStream = e.streams[0];
-            this.remotestreamback();
+            if (this.remotestreamback) {
+                this.remotestreamback();
+            }
             this.setCommunicating();
         }
     }
@@ -305,7 +323,9 @@ class WebrtcConnection {
                         console.log('远程candidate', remoteCandidate)
                         this.peer.addIceCandidate(remoteCandidate).then(res => {
                             console.log("success")
-                            this.remotestreamback();
+                            if (this.remotestreamback) {
+                                this.remotestreamback();
+                            }
                         }).catch(e => {
                             console.log("Error: Failure during addIceCandidate()", e);
                         });
@@ -512,5 +532,5 @@ export {
     callReject,
     callCancel,
     calledBusy,
-    WebrtcConnection
+    WebrtcConnection,
 }

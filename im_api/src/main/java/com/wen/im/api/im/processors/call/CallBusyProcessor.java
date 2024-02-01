@@ -1,4 +1,4 @@
-package com.wen.im.api.im.processors;
+package com.wen.im.api.im.processors.call;
 
 import com.wen.im.common.utils.RequestCode;
 import com.wen.im.common.utils.ResponseCode;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author wenting
  */
 @Component
-public class CallSendAnswerProcessor implements NettySpringWebsocketRemotingProcessor {
+public class CallBusyProcessor implements NettySpringWebsocketRemotingProcessor {
 
     private  NettyImServer server;
 
@@ -31,16 +31,15 @@ public class CallSendAnswerProcessor implements NettySpringWebsocketRemotingProc
     @Override
     public void handleBackendRequest(ImRequest request) {
         com.alibaba.fastjson2.JSONObject body = com.alibaba.fastjson2.JSONObject.from(request.getBody());
-        String calledUid = body.getString("calledUid");
-        String callerUid = body.getString("callerUid");
-        ImResponse response = ImResponse.result(ResponseCode.CALL_SEND_ANSWER, request.getBody(), "");
-        server.getClientService().sendMsg(callerUid, response);
+        String toUid = body.getString("toUid");
+        ImResponse response = ImResponse.result(ResponseCode.CALL_SEND_BUSY, request.getBody(), "");
+        server.getClientService().sendMsg(toUid, response);
     }
 
 
     @Override
     public RequestCode getRequestCode() {
-        return RequestCode.SEND_ANSWER_REQ;
+        return RequestCode.SEND_BUSY_REQ;
     }
 
 }

@@ -13,6 +13,10 @@ public enum RoomTypeEnum {
      *  单聊
      */
     SINGLE_CHAT(2),
+    /**
+     *  会议
+     */
+    MEET(3),
     ;
     int type;
 

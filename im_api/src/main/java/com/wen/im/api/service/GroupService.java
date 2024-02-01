@@ -26,4 +26,6 @@ public interface GroupService {
     ApiResponse groupExit(JSONObject req, Long uid);
 
     ApiResponse delGroupMember(JSONObject req, Long uid) throws Exception;
+
+    ApiResponse createMeet(JSONObject req, Long uid);
 }

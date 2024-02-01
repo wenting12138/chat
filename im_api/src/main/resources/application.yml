@@ -34,6 +34,8 @@ spring:
     removeAbandonedTimeout: 1800
   main:
     allow-bean-definition-overriding: true
+  profiles:
+    active: stream
 mybatis:
   mapper-locations: classpath:mapper/*.xml
 # PageHelper分页插件
@@ -49,17 +51,17 @@ logging:
 
 oss:
   upload_base_url: http://127.0.0.1:${server.port}${server.servlet.context-path}
-  bucket: xxxxxxx
+  bucket: iims
   # 上传文件访问的地址
-  endpoint: xxxxxx
-  # 公网地址
-  endpoint_public: xxxxx
-  accessKeyId: xxxxx
-  accessKeySecret: xxxxx
+  endpoint: oss-cn-shanghai.aliyuncs.com
+  # 录音文件URL公网地址
+  endpoint_public: oss-cn-shanghai.aliyuncs.com
+  accessKeyId: LTAI4FdiVozjcJvj6pSkpsEc
+  accessKeySecret: XVkbjAOjnfyH60umZey3ZiaxZCPC0C
 
 ws:
   port: 10036
   path: /im/chat
-  rocketMqNameAddr: xxxxxxxx
+  rocketMqNameAddr: 47.96.80.134:9876
   rocketMqSendMessageTopic: my_im_chat_topic
   rocketMqSendMessageGroup: my_im_chat

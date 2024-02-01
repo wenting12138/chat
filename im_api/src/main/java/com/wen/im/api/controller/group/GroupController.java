@@ -70,4 +70,12 @@ public class GroupController {
         return groupService.groupExit(req, uid);
     }
 
+    /**
+     *  创建会议室
+     */
+    @PostMapping("/group/createMeet")
+    public ApiResponse createMeet(@RequestBody JSONObject req, @RequestHeader("uid") Long uid)throws Exception{
+        return groupService.createMeet(req, uid);
+    }
+
 }

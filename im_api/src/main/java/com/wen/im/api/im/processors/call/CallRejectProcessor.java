@@ -1,4 +1,4 @@
-package com.wen.im.api.im.processors;
+package com.wen.im.api.im.processors.call;
 
 import com.wen.im.common.utils.RequestCode;
 import com.wen.im.common.utils.ResponseCode;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author wenting
  */
 @Component
-public class CallHangupProcessor implements NettySpringWebsocketRemotingProcessor {
+public class CallRejectProcessor implements NettySpringWebsocketRemotingProcessor {
 
     private  NettyImServer server;
 
@@ -32,14 +32,14 @@ public class CallHangupProcessor implements NettySpringWebsocketRemotingProcesso
     public void handleBackendRequest(ImRequest request) {
         com.alibaba.fastjson2.JSONObject body = com.alibaba.fastjson2.JSONObject.from(request.getBody());
         String toUid = body.getString("toUid");
-        ImResponse response = ImResponse.result(ResponseCode.CALL_SEND_HANGUP, request.getBody(), "");
+        ImResponse response = ImResponse.result(ResponseCode.CALL_SEND_REJECT, request.getBody(), "");
         server.getClientService().sendMsg(toUid, response);
     }
 
 
     @Override
     public RequestCode getRequestCode() {
-        return RequestCode.SEND_HANGUP_REQ;
+        return RequestCode.SEND_REJECT_REQ;
     }
 
 }
