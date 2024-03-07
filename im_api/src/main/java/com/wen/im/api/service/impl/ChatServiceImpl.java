@@ -59,6 +59,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ApiResponse contactPage(int pageSize, String cursor, String uid) {
+        if ("undefined".equals(uid) || StringUtils.isEmpty(uid)) {
+            ListCursorResponse listCursorResponse = new ListCursorResponse();
+            listCursorResponse.setList(new ArrayList<>());
+            listCursorResponse.setLast(true);
+            return ApiResponse.success(listCursorResponse);
+        }
         List<Contact> contactList = contactMapper.selectContactByUid(uid);
         List<Room> hotList = roomMapper.selectHotRoom();
         hotList.forEach(s -> {

@@ -14,7 +14,7 @@ const isView = ref(false)
 const isMuted = ref(false)
 const isBan = ref(false)
 const roomFromData = reactive({
-    nickname: JSON.parse(localStorage.getItem("USER_INFO")).name,
+    // nickname: JSON.parse(localStorage.getItem("USER_INFO")).name,
     roomId: '',
     roomPw: '',
     radio: '2'
