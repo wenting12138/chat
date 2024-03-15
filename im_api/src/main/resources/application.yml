@@ -51,13 +51,13 @@ logging:
 
 oss:
   upload_base_url: http://127.0.0.1:${server.port}${server.servlet.context-path}
-  bucket: iims
+  bucket: xxxxxxxxx
   # 上传文件访问的地址
-  endpoint: oss-cn-shanghai.aliyuncs.com
+  endpoint: xxxxxxx
   # 录音文件URL公网地址
-  endpoint_public: oss-cn-shanghai.aliyuncs.com
-  accessKeyId: LTAI4FdiVozjcJvj6pSkpsEc
-  accessKeySecret: XVkbjAOjnfyH60umZey3ZiaxZCPC0C
+  endpoint_public: xxxxxx
+  accessKeyId: xxxxx
+  accessKeySecret: xxxxxx
 
 ws:
   port: 10036
